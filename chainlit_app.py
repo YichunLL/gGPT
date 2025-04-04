@@ -79,7 +79,7 @@ async def start():
     await cl.Message(
         content=(
             "🔋 Hi! This is **GotionGPT**, your AI assistant - **NOT limited to** battery cell design and optimization.\n\n"
-            "To get started with our self-developed battery size predictor based on desired pack design\n\n"
+            "To get started with our self-developed battery size predictor based on the desired pack design\n\n"
             "Enter your input like this:\n"
             "`Length_pack (mm), Width_pack (mm), Height_pack (mm), Energy (kWh), Total Voltage (V)`\n\n"
             "Example: `1000, 1600, 1500, 60, 400`\n\n"
