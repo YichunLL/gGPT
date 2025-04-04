@@ -1,10 +1,10 @@
-# Welcome to GotionGPT! 🚀🤖
+# Welcome to GotionGPT! 🤖
 
 Hi there! 👋 This is GotionGPT!
 
 Our self-developed battery size predictor help design and optimize EV battery packs using AI techniques.
 
-Please enter following numbers to to call the cell predictor
+Please enter following numbers to start with our the cell size predictor 🚀
 
 - Enter your pack configuration
 - Get optimal cell size predictions
