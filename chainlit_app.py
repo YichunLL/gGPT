@@ -2,6 +2,7 @@ import chainlit as cl
 import httpx
 import asyncio
 import os
+import re
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -18,7 +19,7 @@ chat_history = [
         "role": "system",
         "content": (
             "You are GotionGPT, an expert AI assistant specialized in battery pack and cell optimization. "
-            "Explain concepts clearly using plain markdown. Avoid LaTeX formatting (no \\[ \\], \\text{}, \\frac{}). "
+            "Explain concepts clearly using plain markdown. Avoid LaTeX formatting (no \\[ \\, \\text{}, \\frac{}). "
             "Do NOT use markdown headings (#). Use bold labels like **Battery Pack Specs**, and format formulas like `E = P × t`."
         )
     }
@@ -36,35 +37,63 @@ async def animate_thinking(msg):
     except asyncio.CancelledError:
         pass
 
+# ✅ Flexible input parser
+
+def parse_input(text: str):
+    clean_text = re.sub(r"[，、;|]", ",", text.lower())
+
+    field_patterns = {
+        "Length_pack": r"(length|long)\D*(\d+(\.\d+)?)",
+        "Width_pack": r"(width|wide)\D*(\d+(\.\d+)?)",
+        "Height_pack": r"(height|tall)\D*(\d+(\.\d+)?)",
+        "Energy": r"(energy|capacity)\D*(\d+(\.\d+)?)",
+        "Total_Voltage": r"(voltage)\D*(\d+(\.\d+)?)"
+    }
+
+    extracted = {}
+    for key, pattern in field_patterns.items():
+        match = re.search(pattern, clean_text)
+        if match:
+            extracted[key] = float(match.group(2))
+
+    if len(extracted) == 5:
+        return extracted
+
+    try:
+        numbers = [float(x.strip()) for x in clean_text.split(",") if x.strip()]
+        if len(numbers) == 5:
+            return {
+                "Length_pack": numbers[0],
+                "Width_pack": numbers[1],
+                "Height_pack": numbers[2],
+                "Energy": numbers[3],
+                "Total_Voltage": numbers[4]
+            }
+    except ValueError:
+        pass
+
+    return None
+
 @cl.on_chat_start
 async def start():
     await cl.Message(
         content=(
-            "🔋 Hi! This is **GotionGPT**, your assistant for battery cell design and optimization.\n\n"
-            "To get started, enter your input like this:\n"
+            "🔋 Hi! This is **GotionGPT**, your AI assistant - **not limited to** battery cell design and optimization.\n\n"
+            "To get started with our self-developed battery size predictor based on desired pack design\n\n"
+            "Enter your input like this:\n"
             "`Length_pack (mm), Width_pack (mm), Height_pack (mm), Energy (kWh), Total Voltage (V)`\n\n"
-            "Example: `1000, 1600, 1500, 60, 400`"
+            "Example: `1000, 1600, 1500, 60, 400`\n\n"
+            "Note: I speak both **English** and **Chinese**, so feel free to chat in either!\n"
         )
     ).send()
 
 @cl.on_message
 async def handle_message(message: cl.Message):
     try:
-        try:
-            parts = [float(x.strip()) for x in message.content.split(",")]
-        except ValueError:
-            parts = []
+        input_data = parse_input(message.content)
 
         # ✅ Handle Initial Model Prediction
-        if len(parts) == 5:
-            input_data = {
-                "Length_pack": parts[0],
-                "Width_pack": parts[1],
-                "Height_pack": parts[2],
-                "Energy": parts[3],
-                "Total_Voltage": parts[4]
-            }
-
+        if input_data:
             analyzing_msg = cl.Message(content="🤖 GotionGPT is analyzing")
             await analyzing_msg.send()
             analyzing_task = asyncio.create_task(animate_thinking(analyzing_msg))
