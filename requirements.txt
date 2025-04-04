@@ -1,8 +1,4 @@
-fastapi
-uvicorn
-tensorflow
-numpy
-pydantic
-python-multipart
-joblib
-scikit-learn
+chainlit
+httpx
+openai
+python-dotenv
