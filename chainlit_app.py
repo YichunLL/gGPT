@@ -78,7 +78,7 @@ def parse_input(text: str):
 async def start():
     await cl.Message(
         content=(
-            "🔋 Hi! This is **GotionGPT**, your AI assistant - **not limited to** battery cell design and optimization.\n\n"
+            "🔋 Hi! This is **GotionGPT**, your AI assistant - **NOT limited to** battery cell design and optimization.\n\n"
             "To get started with our self-developed battery size predictor based on desired pack design\n\n"
             "Enter your input like this:\n"
             "`Length_pack (mm), Width_pack (mm), Height_pack (mm), Energy (kWh), Total Voltage (V)`\n\n"
@@ -140,7 +140,7 @@ async def handle_message(message: cl.Message):
             await analyzing_msg.remove()
 
             pred_msg = (
-                f"📐 **Predicted Cell Dimensions**\n"
+                f"📐 **Predicted Cell Dimensions from self-developed NN-based predictor**\n"
                 f"- Length: {length:.0f} mm\n"
                 f"- Width: {width:.0f} mm\n"
                 f"- Height: {height:.0f} mm\n"
